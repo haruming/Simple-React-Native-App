@@ -1,19 +1,67 @@
 import React from 'react';
 import { StyleSheet, Text, View } from 'react-native';
+import TodoInput from './components/TodoInput';
+import TodoItems from './components/TodoItems'
+import TodoFooter from './components/TodoFooter'
 
-export default function App() {
-  return (
-    <View style={styles.container}>
-      <Text>Open up App.js to start working on your app!</Text>
-    </View>
-  );
+const unique_ID = () => {
+    return Math.random().toString(36).substr(2, 4)
 }
 
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: '#fff',
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-});
+export default class App extends React.Component {
+    constructor(props) {
+        super(props)
+        this._actionAdd=this._actionAdd.bind(this)
+        this._actionFinish=this._actionFinish.bind(this)
+        this._actionDelete=this._actionDelete.bind(this)
+    }
+
+    state = {
+        todos: [
+            {ID:1,item:'Todo Item #1',done:false},
+            {ID:2,item:'Todo Item #2',done:false},
+            {ID:3,item:'Todo Item #3',done:false},
+        ]
+    }
+
+    _actionAdd(item, done=false) {
+        let ID = unique_ID()
+        let todos = this.state.todos
+        this.setState({
+            todos: [...todos, {ID, item, done}]
+        })
+    }
+
+    _actionFinish(ID) {
+        let todos = this.state.todos
+        let modifiedTodos = todos.map(todo => {
+            if (todo.id == ID) {
+                todo.done = !todo.done
+            }
+            return todo
+        })
+        this.setState({
+            todos: modifiedTodos
+        })
+    }
+
+    _actionDelete(ID) {
+        let todos = this.state.todos
+        let modifiedTodos = todos.filter(todo => todo.ID !== ID)
+        this.setState({
+            todos: modifiedTodos
+        })
+    }
+
+    render() {
+        return (
+            <View>
+                <TodoInput actionAdd={this._actionAdd} />
+                <TodoItems todos={this.state.todos}
+                    actionFinish={this._actionFinish}
+                    actionDelete={this._actionDelete} />
+                <TodoFooter total={this.state.todos.length} />
+            </View>
+        );
+    }
+}
